@@ -1,0 +1,130 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="true" %>
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <%@ include file ="../include/head.jsp" %> 
+</head>
+
+<body>
+	<!--[if lte IE 9]>
+         <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+    <![endif]-->
+
+	<!-- header-start -->
+		<header>
+			<%@ include file ="../include/nav.jsp" %>
+		</header>
+    <!-- header-end -->
+
+    <!-- bradcam_area_start -->
+		<div class="bradcam_area breadcam_bg_1">
+			<h3> 공지사항 등록 </h3>
+		</div>
+    <!-- bradcam_area_end -->
+
+    <!-- Main content -->
+    
+	<div class="container">
+	<div class="section_title text-center mb-100">
+
+	<div class="offers_area padding_top">
+	<div class="row" style="margin-bottom: 20px; margin-left: 1px;">
+	<div class="col-lg-12">
+	<h1 class="page-header">공지사항 등록</h1>
+	</div>
+	</div>
+	</div>
+	
+
+	<div class="panel" style="margin-left:1px;">
+	<div id="contAreaBox">
+	<div class="panel">
+	<div class="panel-body">
+	<div class="table-responsive" style="text-align:center;">
+	
+	<form class="text-center" method="post">
+	<table id="datatable-scroller"
+		class="table table-bordered tbl_Form">
+
+	<tbody>
+		<tr>
+			<th width=10% class="text-center" id="notice_title">제목</th>	
+			<td width=70% class="text-center" id="notice_content"><textarea class="form-control" name="notice_title" required>${notice_title}</textarea></td>	
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td colspan="3" valign="top">
+   				<pre width=100% class="text-center"><textarea class="form-control" name="notice_content" required>${notice_content }</textarea></pre>
+   			</td>
+		</tr>
+	</tbody>
+	
+	</table>
+	<div style="display: inline-block; margin: 0 5px; float:right;"> 
+		<button id="insert" class="btn btn-warning" type="submit">작성완료</button>
+		<button class="btn btn-primary" type="button" onclick="location.href='noticeAll?num=1'">작성취소</button>
+	</div>
+	</form>
+
+
+
+</div>
+</div>
+</div>
+</div>
+</div>    
+</div>
+</div>
+    
+    <!-- Main content End -->
+    
+    
+    
+    <!-- footer -->
+    <%@ include file ="../include/footer.jsp" %>
+    
+    
+    <!-- form itself end-->
+    
+    <!-- 에약이랑 로그인 버튼인데..... 그건 구현 후 붙일거임! 여기 건들 ㄴㄴ -->
+    
+	<!-- form itself end -->
+
+
+     <!-- JS here -->
+    <script src="/resources/js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="/resources/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="/resources/js/popper.min.js"></script>
+    <script src="/resources/js/bootstrap.min.js"></script>
+    <script src="/resources/js/owl.carousel.min.js"></script>
+    <script src="/resources/js/isotope.pkgd.min.js"></script>
+    <script src="/resources/js/ajax-form.js"></script>
+    <script src="/resources/js/waypoints.min.js"></script>
+    <script src="/resources/js/jquery.counterup.min.js"></script>
+    <script src="/resources/js/imagesloaded.pkgd.min.js"></script>
+    <script src="/resources/js/scrollIt.js"></script>
+    <script src="/resources/js/jquery.scrollUp.min.js"></script>
+    <script src="/resources/js/wow.min.js"></script>
+    <script src="/resources/js/nice-select.min.js"></script>
+    <script src="/resources/js/jquery.slicknav.min.js"></script>
+    <script src="/resources/js/jquery.magnific-popup.min.js"></script>
+    <script src="/resources/js/plugins.js"></script>
+    <script src="/resources/js/gijgo.min.js"></script>
+
+    <!--contact js-->
+    <script src="/resources/js/contact.js"></script>
+    <script src="/resources/js/jquery.ajaxchimp.min.js"></script>
+    <script src="/resources/js/jquery.form.js"></script>
+    <script src="/resources/js/jquery.validate.min.js"></script>
+    <script src="/resources/js/mail-script.js"></script>
+
+    <script src="/resources/js/main.js"></script>
+   
+
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.mypageMapper">
+
+	<!-- 마이페이지 -->
+	<!-- 닉네임수정 -->
+	<select id="nickCheck" parameterType="UserDTO"
+		resultType="UserDTO"> select * from user where user_nick = #{user_nick} and
+		user_id != #{user_id} and user_outdatetime is null </select>
+	<!-- 회원정보수정 -->
+	<update id="userUpdate"> update user set user_name=#{user_name},
+		user_phone=#{user_phone} where user_id=#{user_id} </update>
+	<!-- 회원탈퇴 -->
+	<update id="userDelete"> update user set user_outdatetime = now() where
+		user_id = #{user_id} </update>
+	<!-- 상품 내역 -->
+	<select id="cart" resultType="CartVO"> select c.cart_no, c.user_id,
+		c.cart_date, c.cart_amount, s.shop_no as shop from cart c inner join
+		shop_info s on c.shop_no = s.shop_no where c.user_id = #{user_id}
+	</select>
+	<!-- 상품 내역 -->
+	<select id="cartMap" resultType="hashMap"> select c.cart_no,
+		c.cart_amount, s.shop_no, s.shop_name, s.shop_price,
+		DATE_FORMAT(c.cart_date, '%Y-%m-%d') as cart_date from cart c inner
+		join shop_info s on c.shop_no = s.shop_no where c.user_id = #{user_id}
+	</select>
+	<!-- 상품 내역 -->
+	<select id="deleteCart"> delete from cart where cart_no = #{cart_no} </select>
+	<!-- 구매내역 -->
+
+	<!-- 구매확인 -->
+	<select id="buyList" parameterType="String"
+		resultType="kr.co.dong.VO.BuyPayInVO">
+		SELECT
+		buy.buy_no,
+		buy.buy_date,
+		buy.buy_amount,
+		buy.shop_no,
+		MAX(payin.payin_no) AS payin_no,
+		MAX(pay.pay_no) AS pay_no,
+		buy.buy_paystate
+		FROM
+		buy
+		LEFT JOIN
+		cart ON buy.buy_no = cart.buy_no
+		LEFT JOIN
+		payin ON buy.user_id = payin.user_id
+		LEFT JOIN
+		pay ON cart.user_id = pay.user_id
+		WHERE
+		buy.user_id = #{user_id}
+		AND buy.buy_paystate = 'O'
+		GROUP BY
+		buy.buy_no,
+		buy.user_id,
+		buy.buy_date,
+		buy.buy_amount,
+		buy.shop_no;
+	</select>
+
+	<!-- 구매취소 -->
+	<select id="buyOutList" parameterType="String"
+		resultType="kr.co.dong.VO.BuyPayOutVO">
+		select buy_no, buy.user_id, buy_date, shop_no, payout_no, payout_price,
+		payout_ment, payin_no from buy
+		inner join payout
+		on payout.user_id = buy.user_id
+		where payout.user_id = #{user_id}
+		and buy_paystate = "X"
+	</select>
+
+	<!-- 구매상세내역 -->
+	<select id="selectShopInfo"
+		resultType="kr.co.dong.DTO.ShopInfoDTO"
+		parameterType="java.lang.Integer">
+		select shop_no, shop_name, shop_content, shop_price from shop_info
+		where shop_no = #{shop_no}
+	</select>
+
+	<select id="selectBuy" resultType="kr.co.dong.DTO.BuyDTO"
+		parameterType="java.lang.Integer">
+		select buy_no, buy_date, buy_amount, buy_paystate, user_id from buy
+		where buy_no = #{buy_no}
+	</select>
+
+	<select id="selectPay" resultType="kr.co.dong.DTO.PayDTO"
+		parameterType="java.lang.Integer">
+		select pay_no, pay_price, pay_ment, pay_datetime, pay_name from pay
+		where pay_no = #{pay_no}
+	</select>
+
+	<!-- 예약내역 -->
+
+	<!-- 예약확인 -->
+	<select id="resList" parameterType="String"
+		resultType="kr.co.dong.VO.PayInResVO">
+		select distinct res_no, res.user_id, campres_checkin,
+		campres_checkout, campres_person, res_paystate, camp_no
+		from res
+		inner join payin
+		on payin.user_id = res.user_id
+		where payin.user_id = #{user_id}
+		and res_paystate = "O"
+	</select>
+
+	<!-- 예약취소 -->
+	<select id="resOutList" parameterType="String"
+		resultType="kr.co.dong.VO.PayOutResVO">
+		select res_no, res.user_id, campres_checkin, campres_checkout,
+		campres_person, res_paystate, camp_no, payout_no, payout_name,
+		payout_price,
+		payout_ment, payout_date, payin_no from res
+		inner join payout
+		on payout.user_id = res.user_id
+		where payout.user_id = #{user_id}
+		and res_paystate = "X"
+	</select>
+
+	<!-- rental_info select : 물품정보조회 -->
+	<select id="selectRentalInfo"
+		resultType="kr.co.dong.DTO.RentalInfoDTO">
+		select rental_no, rental_type, rental_index, rental_name, rental_content,
+		rental_price, rental_etc
+		from rental_info
+	</select>
+
+	<!-- 예약상세보기 : 선택예약조회 -->
+	<select id="selectRes" resultType="kr.co.dong.DTO.ResDTO"
+		parameterType="java.lang.Integer">
+		select res_no, res.user_id, campres_checkin, campres_checkout,
+		campres_person, res_paystate, camp_no
+		from res
+		where res_no = #{res_no}
+	</select>
+
+	<!-- rental select : 렌탈물품예약 조회 -->
+	<select id="selectRental" resultType="kr.co.dong.DTO.RentalDTO"
+		parameterType="java.lang.Integer">
+		select rentalres_no, res_no, F1, F2, F3, F4, F5, F1_cnt, F2_cnt, F3_cnt,
+		F4_cnt, F5_cnt
+		from rental
+		where res_no = #{res_no}
+	</select>
+
+	<!-- 품목예약번호로 결제정보 찾기 -->
+	<select id="selectPayRentalres"
+		resultType="kr.co.dong.DTO.PayDTO" parameterType="java.lang.Integer">
+		select pay_no, pay_price, pay_ment, pay_datetime, pay_name from pay
+		where rentalres_no = #{rentalres_no}
+	</select>
+
+
+
+
+
+
+</mapper>

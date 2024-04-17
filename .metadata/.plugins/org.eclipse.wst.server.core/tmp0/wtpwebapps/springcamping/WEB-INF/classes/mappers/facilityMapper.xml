@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.facilityMapper">
+	<!-- 캠핑 정보 전체목록 -->
+	<select id="campAll" resultType="kr.co.dong.DTO.CampInfoDTO">
+		select ci.camp_no, ci.camp_type, ci.camp_index, ci.camp_size, ci.camp_cnt, ci.camp_checkin, ci.camp_checkout, ci.camp_etc, ci.camp_defperson, ci.camp_addperson, ci.camp_allperson, ci.camp_price
+		from camp_info as ci
+		order by camp_type desc, camp_index;
+	</select>
+	
+	<!-- 캠핑 정보 상세보기 -->
+	<select id="campDetail" parameterType="String" resultType="kr.co.dong.DTO.CampInfoDTO">
+		select ci.camp_no, ci.camp_type, ci.camp_index, ci.camp_size, ci.camp_cnt, ci.camp_checkin, ci.camp_checkout, ci.camp_etc, ci.camp_defperson, ci.camp_addperson, ci.camp_allperson, ci.camp_price
+		from camp_info as ci
+		where camp_no=#{camp_no} 
+	</select>
+	
+	<!-- 캠핑 정보 추가 -->
+ 	<insert id="campInsert" parameterType="kr.co.dong.DTO.CampInfoDTO">
+		insert into camp_info(camp_no,camp_type,camp_index,camp_size,camp_cnt,camp_checkin,camp_checkout,camp_content,camp_etc,camp_defperson,camp_addperson,camp_allperson,camp_price)
+		values(#{camp_no},#{camp_type},#{camp_index},#{camp_size},#{camp_cnt},#{camp_checkin},#{camp_checkout},#{camp_content},#{camp_etc},#{camp_defperson},#{camp_addperson},#{camp_allperson},#{camp_price})
+	</insert>
+	
+	<!-- 이미지 정보 추가 -->
+	<insert id="campInsertImage" parameterType="kr.co.dong.DTO.CampInfoDTO">
+	    insert into img(img_no, img_name, img_parents, img_datetime)
+	    values(#{img_no}, #{img_name}, #{img_parents}, now())
+	</insert>
+	
+	<!-- 캠핑 정보 삭제 -->
+ 	<delete id="campDelete" parameterType="String">
+		delete from camp_info
+		where camp_no=#{img_parents}
+	</delete>
+	
+	<!-- 이미지 정보 삭제 -->
+	 <delete id="campDeleteImage" parameterType="String">
+		delete from img
+		where img_parents=#{img_parents} or img_name=#{img_name}
+	</delete>
+	
+	<!-- 이미지 정보 조회 -->
+	<select id="detailImage" parameterType="String" resultType="kr.co.dong.DTO.ImgDTO">
+		select i.img_no, i.img_parents, i.img_name, i.img_datetime
+		from img as i
+		where img_parents=#{img_parents} or img_name=#{img_name}
+	</select>
+	
+	<!-- 캠핑 정보 수정 -->
+	<update id="campUpdate" parameterType="kr.co.dong.DTO.CampInfoDTO">
+		update camp_info set
+		camp_size=#{camp_size},camp_cnt=#{camp_cnt},camp_checkin=#{camp_checkin},camp_checkout=#{camp_checkout},camp_content=#{camp_content},camp_etc=#{camp_etc},camp_defperson=#{camp_defperson},camp_addperson=#{camp_addperson},camp_allperson=#{camp_allperson},camp_price=#{camp_price}
+		where camp_no = #{camp_no}
+	</update>
+	
+	<!-- 이미지 정보 수정 -->
+	<update id="campUpdateImage" parameterType="kr.co.dong.DTO.ImgDTO">
+		update img set i.img_no, i.img_parents, i.img_name, i.img_datetime
+		where img_no = #{img_no}
+	</update>
+	
+	<!-- 렌탈 정보 전체목록 -->
+	<select id="rentalAll" resultType="kr.co.dong.DTO.RentalInfoDTO">
+		select ri.rental_no, ri.rental_type, ri.rental_index, ri.rental_name, ri.rental_content, ri.rental_etc, ri.rental_price
+		from rental_info as ri
+		order by rental_type desc, rental_index;
+	</select>
+	
+	<!-- 렌탈 정보 추가 -->
+ 	<insert id="rentalInsert" parameterType="kr.co.dong.DTO.RentalInfoDTO">
+		insert into rental_info()
+		values(#{rental_no},#{rental_type},#{rental_index},#{rental_name},#{rental_content},#{rental_etc},#{rental_price})
+	</insert>
+	
+	<!-- 렌탈 정보 상세보기 -->
+	<select id="rentalDetail" parameterType="String" resultType="kr.co.dong.DTO.RentalInfoDTO">
+		select ri.rental_no, ri.rental_type, ri.rental_index, ri.rental_name, ri.rental_content, ri.rental_etc, ri.rental_price
+		from rental_info as ri
+		where rental_no=#{rental_no} 
+	</select>
+	
+	<!-- 렌탈 정보 수정 -->
+	<update id="rentalUpdate" parameterType="kr.co.dong.DTO.RentalInfoDTO">
+		update rental_info set
+		rental_no=#{rental_no}, rental_type=#{rental_type}, rental_index=#{rental_index}, rental_name=#{rental_name}, rental_content=#{rental_content}, rental_etc=#{rental_etc}, rental_price=#{rental_price}
+		where rental_no = #{rental_no}
+	</update>
+	
+	<!-- 렌탈 정보 삭제 -->
+ 	<delete id="rentalDelete" parameterType="String">
+		delete from rental_info
+		where rental_no=#{img_parents}
+	</delete>
+	
+</mapper>

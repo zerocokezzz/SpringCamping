@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+C:\JAVAback\springcamp\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+650600015.index
+2556169177.index
+2280606618.index
+3647994448.index
+118953380.index
+2936152702.index

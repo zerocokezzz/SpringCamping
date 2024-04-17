@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.adminMapper">
+
+	<!-- 구매관리 -->
+
+	<!-- 관리자구매확인 -->
+	<select id="buyListAdmin" resultType="kr.co.dong.VO.BuyPayInVO">
+		SELECT
+		buy.buy_no,
+		buy.user_id,
+		buy.buy_date,
+		buy.buy_amount,
+		buy.shop_no,
+		MAX(payin.payin_no) AS payin_no,
+		MAX(pay.pay_no) AS pay_no
+		FROM
+		buy
+		LEFT JOIN
+		cart ON buy.buy_no = cart.buy_no
+		LEFT JOIN
+		pay ON cart.user_id = pay.user_id
+		LEFT JOIN
+		payin ON pay.pay_no = payin.pay_no
+		WHERE
+		buy.buy_paystate = 'O'
+		GROUP BY
+		buy.buy_no,
+		buy.user_id,
+		buy.buy_date,
+		buy.buy_amount,
+		buy.shop_no;
+	</select>
+
+	<!-- 관리자구매확인 상세내역 -->
+	<select id="selectShopinfo"
+		resultType="kr.co.dong.DTO.ShopInfoDTO"
+		parameterType="java.lang.Integer">
+		select shop_no, shop_name, shop_content, shop_price from shop_info
+		where shop_no = #{shop_no}
+	</select>
+
+	<select id="selectBuy" resultType="kr.co.dong.DTO.BuyDTO"
+		parameterType="java.lang.Integer">
+		select buy_no, buy_date, buy_amount, buy_paystate, user_id from buy
+		where buy_no = #{buy_no}
+	</select>
+
+	<select id="selectPay" resultType="kr.co.dong.DTO.PayDTO"
+		parameterType="java.lang.Integer">
+		select pay_no, pay_price, pay_ment, pay_datetime, pay_name from pay
+		where pay_no = #{pay_no}
+	</select>
+
+	<!-- 관리자구매취소내역 -->
+	<select id="buyOutListAdmin"
+		resultType="kr.co.dong.VO.BuyPayOutVO">
+		select buy_no, buy.user_id, buy_date, buy_amount, shop_no, payout_no,
+		payout_name, payout_price, payout_ment, payout_date, payin_no from buy
+		inner join payout
+		on payout.user_id = buy.user_id
+		where buy_paystate = "X"
+	</select>
+
+
+	<!-- 관리자구매등록 -->
+	<insert id="buyAddShop" parameterType="kr.co.dong.DTO.BuyDTO">
+		insert into buy (user_id, buy_date, buy_amount, shop_no, buy_paystate)
+		values (#{user_id}, #{buy_date}, #{buy_amount}, #{shop_no}, 'O')
+		<selectKey keyProperty="buy_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 장바구니에 정보 추가 -->
+	<insert id="cartInsert" parameterType="kr.co.dong.DTO.CartDTO">
+		insert into cart (user_id, buy_no)
+		values (#{user_id}, #{buy_no})
+		<selectKey keyProperty="cart_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- payinsert 장바구니 번호로 pay에 데이터 넣기 -->
+	<insert id="payInsertCart" parameterType="kr.co.dong.DTO.PayDTO">
+		insert into pay (user_id, pay_price, pay_ment, pay_datetime, pay_name,
+		cart_no)
+		values (#{user_id}, #{pay_price}, #{pay_ment}, now(), 2, #{cart_no})
+		<selectKey keyProperty="pay_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 관리자구매수정 -->
+	<update id="buyUpdate" parameterType="kr.co.dong.DTO.BuyDTO">
+		update buy
+		set buy_date = #{buy_date}, buy_amount = #{buy_amount},
+		buy_paystate=#{buy_paystate}
+		where buy_no = #{buy_no}
+		<selectKey keyProperty="buy_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</update>
+
+	<!-- pay_no 로 payin_no -->
+	<select id="selectPayinPayno"
+		resultType="kr.co.dong.DTO.PayInDTO" parameterType="java.lang.Integer">
+		select payin_no from payin where pay_no = #{pay_no}
+	</select>
+
+	<!-- 관리자구매수정/삭제 후 쇼핑몰재고수정 (재고가 바뀌는 경우에는 재고 수정을 같이 넣어준다) -->
+	<update id="amountUpdate" parameterType="kr.co.dong.DTO.BuyDTO">
+		update shop_info
+		set shop_cnt = shop_cnt - #{buy_amount}
+		where shop_no = #{shop_no}
+	</update>
+
+	<!-- 예약관리 -->
+
+	<!-- 관리자예약내역(달력) -->
+
+	<!-- 관리자예약내역(보고서) -->
+	<select id="resListAdmin" resultType="kr.co.dong.VO.PayInResVO">
+		SELECT
+		res_no,
+		res.user_id,
+		campres_checkin,
+		campres_checkout,
+		campres_person,
+		res_paystate,
+		camp_no,
+		MAX(payin_no) as payin_no,
+		MAX(pay_no) as pay_no
+		FROM
+		res
+		INNER JOIN
+		payin ON payin.user_id = res.user_id
+		WHERE
+		res_paystate = "O"
+		GROUP BY
+		res_no,
+		res.user_id,
+		campres_checkin,
+		campres_checkout,
+		campres_person,
+		res_paystate,
+		camp_no;
+	</select>
+
+	<!-- rental_info select : 물품정보조회 -->
+	<select id="selectRentalInfo"
+		resultType="kr.co.dong.DTO.RentalInfoDTO">
+		select rental_no, rental_type, rental_index, rental_name, rental_content,
+		rental_price, rental_etc
+		from rental_info
+	</select>
+
+	<!-- rental select : 렌탈물품예약 조회 -->
+	<select id="selectRental" resultType="kr.co.dong.DTO.RentalDTO"
+		parameterType="java.lang.Integer">
+		select rentalres_no, res_no, F1, F2, F3, F4, F5, F1_cnt, F2_cnt, F3_cnt,
+		F4_cnt, F5_cnt
+		from rental
+		where res_no = #{res_no}
+	</select>
+
+	<!-- 예약상세보기 : 선택예약조회 -->
+	<select id="selectRes" resultType="kr.co.dong.DTO.ResDTO"
+		parameterType="java.lang.Integer">
+		select res_no, res.user_id, campres_checkin, campres_checkout,
+		campres_person, res_paystate, camp_no
+		from res
+		where res_no = #{res_no}
+	</select>
+
+	<!-- 품목예약번호로 결제정보 찾기 -->
+	<select id="selectPayRentalres"
+		resultType="kr.co.dong.DTO.PayDTO" parameterType="java.lang.Integer">
+		select pay_no, pay_price, pay_ment, pay_datetime, pay_name from pay
+		where rentalres_no = #{rentalres_no}
+	</select>
+
+	<!-- 관리자예약취소내역 -->
+	<select id="resOutListAdmin"
+		resultType="kr.co.dong.VO.PayOutResVO">
+		select res_no, res.user_id, campres_checkin, campres_checkout,
+		campres_person, res_paystate, camp_no, payout_no, payout_name,
+		payout_price,
+		payout_ment, payout_date, payin_no from res
+		inner join payout
+		on payout.user_id = res.user_id
+		and res_paystate = "X"
+	</select>
+
+	<!-- 관리자캠핑장예약등록 -->
+	<insert id="resAdd" parameterType="kr.co.dong.DTO.ResDTO">
+		insert into res (user_id, campres_checkin, campres_checkout,
+		campres_person, camp_no, res_paystate )
+		values (#{user_id}, #{campres_checkin}, #{campres_checkout},
+		#{campres_person}, #{camp_no}, "O")
+		<selectKey keyProperty="res_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 관리자예약수정 -->
+	<update id="resUpdate" parameterType="kr.co.dong.DTO.ResDTO">
+		update res set camp_no = #{camp_no}, campres_checkin = #{campres_checkin},
+		campres_checkout = #{campres_checkout}, campres_person =
+		#{campres_person}, res_paystate = #{res_paystate}
+		where res_no = #{res_no}
+	</update>
+
+	<!-- 관리자의 예약&구매 취소 (구매일 경우 쇼핑몰재고수정 amountUpdate 꼭 하기 & 결제취소정보입력하기 payoutInsert) -->
+	<delete id="payinDelete" parameterType="kr.co.dong.DTO.PayInDTO">
+		delete from payin
+		where buy_no = #{payin_no} and user_id = #{user_id}
+	</delete>
+
+	<!-- payin에 결제완료 정보 입력 (구매/예약 등록 하는 경우 payin테이블에도 정보 보내주기) -->
+	<insert id="buyAddPayin" parameterType="String">
+		insert into payin (user_id, pay_no)
+		values (#{user_id}, 0)
+	</insert>
+
+	<!-- payout에 결제취소 정보 인력 (구매/예약삭제를 하는 경우 payout 테이블에 정보 보내주기 -->
+	<insert id="payoutInsert"
+		parameterType="kr.co.dong.DTO.PayOutDTO">
+		insert into payout (payout_name, payout_price, payout_ment, payout_date,
+		user_id, payin_no)
+		values (#{payout_name}, #{payout_price}, #{payout_ment}, now(), #{user_id},
+		#{payin_no})
+	</insert>
+
+	<!-- 관리자 예약등록 시 rentalres_no = 0 으로 PAY에 insert -->
+	<insert id="payInsert" parameterType="kr.co.dong.DTO.PayDTO">
+		insert into pay (user_id, pay_price, pay_ment, pay_datetime, pay_name,
+		rentalres_no)
+		values (#{user_id}, #{pay_price}, #{pay_ment}, now(), 1, #{rentalres_no})
+		<selectKey keyProperty="pay_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- payInInsert : pay에서 pay_no 찾아서 payin에 insert -->
+	<insert id="payInInsert" parameterType="java.lang.Integer">
+		insert into payin (user_id, pay_no)
+		select pay.user_id, pay.pay_no
+		from pay
+		where pay_no = #{pay_no}
+	</insert>
+
+	<!-- 실시간 예약 -->
+
+	<!-- 방 예약정보 입력 -->
+	<insert id="campInsert" parameterType="kr.co.dong.DTO.ResDTO">
+		insert into res
+		(user_id,campres_checkin,campres_checkout,campres_person,camp_no)
+		values
+		(#{user_id},#{campres_checkin},#{campres_checkout},#{campres_person},#{camp_no})
+	</insert>
+
+	<!-- 렌탈 예약정보 입력 -->
+	<insert id="rentalInsert"
+		parameterType="kr.co.dong.DTO.RentalDTO">
+		insert into rental (rentalres_no, res_no, f1, f2, f3, f4, f5, f1_cnt,
+		f2_cnt, f3_cnt, f4_cnt, f5_cnt)
+		values (#{rentalres_no}, #{res_no}, #{f1}, #{f2}, #{f3}, #{f4}, #{f5},
+		#{f1_cnt},
+		#{f2_cnt}, #{f3_cnt} , #{f4_cnt} , #{f5_cnt} )
+		<selectKey keyProperty="rentalres_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 예약 장바구니에 넣기 -->
+	<insert id="campCart" parameterType="kr.co.dong.DTO.ResDTO">
+		insert into cart (user_id, shop_no, res_no)
+		values (#{user_id}, #{shop_no}, #{res_no})
+	</insert>
+
+	<!-- 예약불가능한 방 목록 (날짜 입력하면 해당 날짜에 예약되어있는 방 번호 출력/ 없으면 출력 안 함 -->
+	<select id="resCal" parameterType="String"
+		resultType="kr.co.dong.VO.PayInResVO">
+		select camp_no from res
+		inner join payin
+		on payin.user_id = res.user_id
+		where #{date} >= campres_checkin and #{date} &lt; campres_checkout
+	</select>
+
+	<!-- 예약가능한 날짜 걸러내기 (예약불가한 방은 camp_no가 나오지 않음 -->
+	<select id="selectDate" parameterType="String"
+		resultType="java.lang.Integer">
+		select camp_no from camp_info
+		not in(select camp_no from res
+		where campres_checkin>=#{check_in} or
+		campres_checkout=#{check_out},interval -1 day)
+	</select>
+
+	<!-- 매출통계 전체목록 -->
+	<select id="sales" parameterType="java.util.Map"
+		resultType="kr.co.dong.VO.adminVO">
+		SELECT
+		p.pay_no, p.user_id, p.pay_price, p.pay_ment, p.pay_datetime, p.pay_name,
+		p.cart_no, p.rentalres_no, po.payout_name, po.payout_price,
+		po.payout_ment, po.payout_date, b.buy_amount
+		FROM pay AS p
+		JOIN payin AS pi ON p.pay_no = pi.pay_no
+		LEFT JOIN payout AS po ON pi.payin_no = po.payin_no
+		LEFT JOIN cart AS c ON p.cart_no = c.cart_no
+		LEFT JOIN buy AS b ON c.buy_no = b.buy_no
+		WHERE DATE(p.pay_datetime) BETWEEN #{start_pay_datetime} AND
+		#{end_pay_datetime}
+	</select>
+
+	<!-- 회원목록조회 -->
+	<select id="listAll" resultType="userDTO"> select * from user order by
+		user_indatetime desc </select>
+	<!-- 회원 상세보기 -->
+	<select id="userDetail" parameterType="userDTO"
+		resultType="userDTO"> select * from user where user_id=#{user_id} </select>
+	<!-- 회원정보 수정하기 -->
+	<update id="userUpdate" parameterType="userDTO"> update user set
+		user_name=#{user_name}, user_phone=#{user_phone} where
+		user_id=#{user_id} </update>
+
+
+
+</mapper>

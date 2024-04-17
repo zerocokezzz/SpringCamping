@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.guidemapper">
+
+	<!-- 공지사항 목록 -->
+	<select id="list" resultType="kr.co.dong.DTO.NoticeDTO">
+		SELECT * FROM notice;
+	</select>
+	
+	<!-- 공지사항 세부내용 -->
+	<select id="detail" resultType="kr.co.dong.DTO.NoticeDTO">
+		select * from notice
+		where notice_no=#{notice.notice_no}
+	</select>
+
+	<!-- 공지사항 조회수 -->
+	<update id="updateReadCnt" parameterType="kr.co.dong.DTO.NoticeDTO">
+		update notice set 
+		notice_readcnt = notice_readcnt +1
+		where notice_no=#{notice.notice_no}
+	</update> 
+	
+	<!-- 공지사항 추가 -->
+	<insert id="insert" parameterType="kr.co.dong.DTO.NoticeDTO">
+		insert into notice(notice_title, notice_content, notice_datetime, notice_readcnt)
+		values(#{notice_title}, #{notice_content}, now(), 0)
+	</insert>
+	
+	<!-- 공지사항 수정 -->
+	<update id="update" parameterType="kr.co.dong.DTO.NoticeDTO">
+		update notice 
+		set
+		notice_title = #{notice_title}, notice_content=#{notice_content}
+		where notice_no=#{notice_no}
+	</update>
+	
+	<!-- 공지사항 삭제 -->
+	<delete id="delete" parameterType="int">
+		delete from notice
+		where notice_no = #{notice_no}		
+	</delete>
+
+	<!-- 게시물 총 갯수 -->
+	<select id="count" resultType="int">
+	 	select count(*)
+	 	from notice
+	</select>
+
+	<!-- 공지사항 페이징 -->
+	<select id="listPage" parameterType="hashMap" resultType="kr.co.dong.DTO.NoticeDTO">
+ 		select
+  		notice_no, notice_title, notice_content, notice_datetime, notice_readcnt
+		from notice
+		
+ 		order by notice_no DESC
+		limit #{displayPost}, #{postNum}
+	</select>
+
+</mapper>

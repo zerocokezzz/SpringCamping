@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.ShopInfoMapper">
+
+	<!-- Select All ShopInfo -->
+	<select id="selectAllShopInfo"
+		resultType="kr.co.dong.DTO.ShopInfoDTO">
+		select * from shop_info
+	</select>
+
+	<!-- Select Specific ShopInfo -->
+	<select id="selectShopInfo" parameterType="String"
+		resultType="kr.co.dong.DTO.ShopInfoDTO">
+		SELECT
+		shop_no,
+		shop_name,
+		shop_content,
+		shop_price,
+		shop_cnt,
+		shop_update,
+		image_url,
+		img_no,
+		shop_limit,
+		shop_promo
+		FROM
+		shop_info
+		WHERE
+		shop_no = #{shopNo}
+	</select>
+
+	<!-- Insert a new ShopInfo -->
+	<insert id="insertShopInfo"
+		parameterType="kr.co.dong.DTO.ShopInfoDTO">
+		INSERT INTO shop_info (shop_no, shop_name, shop_content,
+		shop_price,
+		shop_cnt, shop_update, image_url, img_no, shop_limit,
+		shop_promo)
+		VALUES (#{shop_no}, #{shop_name}, #{shop_content},
+		#{shop_price},
+		#{shop_cnt}, now(), #{image_url}, #{img_no},
+		#{shop_limit},
+		#{shop_promo})
+	</insert>
+
+	<!-- Update an existing ShopInfo -->
+	<update id="updateShopInfo"
+		parameterType="kr.co.dong.DTO.ShopInfoDTO">
+		UPDATE shop_info SET
+		shop_name = #{shop_name},
+		shop_content = #{shop_content},
+		shop_price = #{shop_price},
+		shop_cnt =
+		#{shop_cnt},
+		image_url = #{image_url},
+		img_no = #{img_no},
+		shop_limit =
+		#{shop_limit},
+		shop_promo = #{shop_promo}
+		WHERE
+		shop_no = #{shop_no}
+	</update>
+
+	<!-- Delete a ShopInfo -->
+	<delete id="deleteShopInfo" parameterType="String">
+		DELETE FROM shop_info
+		WHERE shop_no = #{shop_no}
+	</delete>
+
+	<!-- Insert Buy -->
+	<insert id="insertBuy" parameterType="kr.co.dong.DTO.BuyDTO">
+		insert into buy (user_id, buy_date, buy_amount, shop_no)
+		values
+		(#{user_id}, #{buy_date}, #{buy_amount}, #{shop_no})
+		<selectKey keyProperty="buy_no" resultType="int"
+			order="AFTER">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- Insert Cart -->
+    <insert id="insertCart" parameterType="kr.co.dong.DTO.CartDTO">
+       insert into cart (user_id, cart_date, cart_amount, shop_no) values 
+       (#{user_id}, #{cart_date}, #{cart_amount}, #{shop_no} )
+       <selectKey keyProperty="cart_no" resultType="int" order="AFTER" >
+            select LAST_INSERT_ID()
+         </selectKey>
+    </insert>
+
+	<select id="searchCart" parameterType="kr.co.dong.DTO.CartDTO"
+		resultType="kr.co.dong.DTO.CartDTO">
+		select *
+		from cart
+		where user_id = #{user_id} and cart_date =
+		#{cart_date} and shop_no =
+		#{shop_no}
+		limit 1
+	</select>
+
+	<update id="updateCartAmount"
+		parameterType="kr.co.dong.DTO.CartDTO"> UPDATE cart SET cart_amount = cart_amount +
+		#{cart_amount} WHERE cart_no = #{cart_no} </update>
+
+</mapper>

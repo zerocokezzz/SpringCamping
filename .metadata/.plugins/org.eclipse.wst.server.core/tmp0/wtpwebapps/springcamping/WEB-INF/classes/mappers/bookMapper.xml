@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="kr.co.dong.bookMapper">
+	
+	<!-- 캠핑장 정보 가져오기 -->
+	<select id="selectCampInfo" resultType="kr.co.dong.DTO.CampInfoDTO">
+		select * from camp_info
+	</select>
+	
+	<!-- 예약정보 가져오기 -->
+	<select id="selectRes" resultType="kr.co.dong.DTO.ResDTO">
+		select * from res
+		where res_paystate = "O"
+	</select>
+	
+	<!-- 렌탈물품정보 가져오기 -->
+	<select id="selectRentalInfo" resultType="kr.co.dong.DTO.RentalInfoDTO">
+		select * from rental_info
+	</select>
+	
+	<!-- res 예약정보 입력 -->
+	<insert id="insertRes" parameterType="kr.co.dong.DTO.ResDTO">
+		insert into res (user_id, campres_checkin, campres_checkout, campres_person, camp_no)
+		values (#{user_id}, #{campres_checkin}, #{campres_checkout}, #{campres_person}, #{camp_no})
+		<selectKey keyProperty="res_no" resultType="int" order="AFTER" >
+				select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- rental 물품예약정보 입력 -->
+	<insert id="insertRental" parameterType="kr.co.dong.DTO.RentalDTO">
+		insert into rental (res_no, f1_cnt, f2_cnt, f3_cnt, f4_cnt, f5_cnt)
+		values (#{res_no}, #{f1_cnt}, #{f2_cnt}, #{f3_cnt}, #{f4_cnt}, #{f5_cnt})
+		<selectKey keyProperty="rentalres_no" resultType="int" order="AFTER" >
+				select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 결제에 넘기기 -->
+	<insert id="insertPay" parameterType="kr.co.dong.DTO.PayDTO">
+		insert into pay (user_id, pay_price, pay_ment, pay_datetime, pay_name, rentalres_no)
+		values (#{user_id}, #{pay_price}, "카카오페이", now(), "1", #{rentalres_no})
+	</insert>
+	
+	<!-- 캠핑장 가격정보 뽑기 -->
+	<select id="selectCampPrice" parameterType="String" resultType="java.lang.Integer">
+		select camp_price from camp_info where camp_no = #{camp_no}
+	</select>
+	
+	<!-- 렌탈물품 가격정보 뽑기 -->
+	<select id="selectRentalPrice" parameterType="String" resultType="java.lang.Integer">
+		select rental_price from rental_info where rental_no = #{rental_no}
+	</select>
+	
+	</mapper>

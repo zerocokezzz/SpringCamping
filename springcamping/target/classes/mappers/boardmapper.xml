@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.boardmapper">
+	<select id="list" resultType="kr.co.dong.DTO.BoardDTO">
+      select bno,board_title,board_content,board_todaydate,board_readcnt,user_id from board
+      order by bno desc
+   </select>
+   <select id="detail" parameterType="int" resultType="kr.co.dong.DTO.BoardDTO">
+      select bno,board_title,board_content,board_todaydate,board_readcnt,user_id from board
+      where bno=#{bno}
+   </select>
+   <insert id="insert" parameterType="kr.co.dong.DTO.BoardDTO">
+      insert into board (board_title,board_content,board_todaydate,board_readcnt,user_id)
+      values (#{board_title},#{board_content},now(),#{board_readcnt},#{user_id})
+	</insert>
+	<update id="update" parameterType="kr.co.dong.DTO.BoardDTO">
+		update board set board_title=#{board_title},board_content=#{board_content}
+		where bno=#{bno}
+	</update>
+	<delete id="delete" parameterType="kr.co.dong.DTO.BoardDTO">
+		delete from board
+		where bno=#{bno}
+	</delete>
+	<update id="readcnt">
+		update board set board_readcnt=board_readcnt+1
+		where bno=#{bno}
+	</update>
+	<select id="count" resultType="int">
+       select count(*)
+       from board
+   </select>
+   <select id="boardpage" parameterType="hashmap" resultType="kr.co.dong.DTO.BoardDTO">
+      select bno,board_title,board_content,board_todaydate,board_readcnt,user_id from board
+      order by bno desc
+      limit #{displayPost}, #{postNum}
+   </select>
+	
+	
+	<select id="ctlist"  resultType="kr.co.dong.DTO.ComentDTO">
+		select ct_no,ct_content,ct_todaydate, user_id,bno from comments
+		where bno=#{bno}
+	</select>
+	<insert id="ctinsert" parameterType="kr.co.dong.DTO.ComentDTO">
+		insert into comments (ct_content,ct_todaydate,user_id, bno)
+		values (#{ct_content},now(),#{user_id},#{bno})
+		
+	</insert>
+	<update id="ctupdate" parameterType="kr.co.dong.DTO.ComentDTO">
+		update comments set ct_content=#{ct_content}
+		where ct_no= #{ct_no}
+	</update>
+	<delete id="ctdelete" parameterType="kr.co.dong.DTO.ComentDTO">
+		delete from comments
+		where ct_no=#{ct_no}
+	</delete>
+	</mapper>
